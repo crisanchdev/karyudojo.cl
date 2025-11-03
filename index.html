@@ -101,15 +101,13 @@
             scroll-behavior: smooth;
         }
 
-        /* Mobile menu transition */
+        /* Mobile menu transition - DEPRECATED (ahora usa transform en media query) */
         .mobile-menu {
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.3s ease-out;
+            /* Reglas legacy comentadas - ahora se usan en @media */
         }
 
         .mobile-menu.open {
-            max-height: 500px;
+            /* Reglas legacy comentadas - ahora se usan en @media */
         }
 
         /* Lightbox */
@@ -128,6 +126,169 @@
 
         .lightbox.active {
             display: flex;
+        }
+
+        /* ========================================
+           OFF-CANVAS MOBILE MENU FIX
+           ======================================== */
+
+        /* Backdrop para oscurecer el fondo cuando el menú está abierto */
+        .menu-backdrop {
+            position: fixed;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
+            background: rgba(0, 0, 0, 0.6);
+            opacity: 0;
+            pointer-events: none;
+            z-index: 9998;
+            transition: opacity 0.3s ease;
+        }
+
+        .menu-backdrop.is-active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        /* En mobile: backdrop solo cubre el lado derecho (NO el menú) */
+        @media (max-width: 1023px) {
+            .menu-backdrop {
+                /* Solo cubrir el lado derecho donde NO está el menú */
+                left: min(85vw, 320px);
+                width: auto;
+            }
+        }
+
+        /* Reemplazar el CSS existente de .mobile-menu */
+        @media (max-width: 1023px) {
+            /* Off-canvas drawer */
+            #mobile-menu.mobile-menu {
+                position: fixed !important;
+                top: 0;
+                left: 0;
+                height: 100dvh;
+                height: 100vh; /* Fallback */
+                width: min(85vw, 320px);
+                max-height: none !important; /* Override existing */
+                background: #ffffff;
+                box-shadow: 2px 0 24px rgba(0, 0, 0, 0.15);
+                transform: translateX(-100%);
+                transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+                z-index: 9999 !important;
+                overflow-y: auto !important;
+                overflow-x: hidden !important;
+                -webkit-overflow-scrolling: touch;
+                will-change: transform;
+                padding: calc(16px + env(safe-area-inset-top)) 16px calc(16px + env(safe-area-inset-bottom)) 16px;
+                margin: 0 !important; /* Override Tailwind mt-2 */
+                pointer-events: auto !important; /* Asegurar que reciba clicks */
+            }
+
+            #mobile-menu.mobile-menu.open {
+                transform: translateX(0);
+            }
+
+            /* Asegurar que el menú y su contenido reciban eventos */
+            #mobile-menu.mobile-menu * {
+                pointer-events: auto;
+                position: relative;
+                z-index: 1;
+            }
+
+            /* Botón de cerrar dentro del drawer (si se agrega) */
+            #mobile-menu .menu-close-btn {
+                position: absolute;
+                top: calc(12px + env(safe-area-inset-top));
+                right: 12px;
+                width: 40px;
+                height: 40px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                background: rgba(0, 0, 0, 0.05);
+                border-radius: 50%;
+                border: none;
+                font-size: 24px;
+                cursor: pointer;
+                transition: all 0.2s;
+                z-index: 10;
+            }
+
+            #mobile-menu .menu-close-btn:hover {
+                background: rgba(0, 0, 0, 0.1);
+                transform: scale(1.1);
+            }
+
+            /* Ajustar espaciado superior si hay botón cerrar */
+            #mobile-menu.has-close-btn {
+                padding-top: calc(60px + env(safe-area-inset-top));
+            }
+
+            /* Ocultar botones flotantes cuando el menú está abierto */
+            body.menu-open a[href*="wa.me"],
+            body.menu-open #scroll-top-btn {
+                opacity: 0 !important;
+                pointer-events: none !important;
+                transform: scale(0.8) !important;
+                transition: opacity 0.2s, transform 0.2s;
+            }
+
+            /* El navbar debe tener z-index alto para que el menú (su hijo) esté por encima del backdrop */
+            body.menu-open #navbar {
+                z-index: 10000; /* Por encima de todo */
+            }
+
+            body:not(.menu-open) #navbar {
+                z-index: 50; /* Z-index normal */
+            }
+
+            /* Ajustar el z-index de la progress bar */
+            body.menu-open #progress-bar {
+                z-index: 9997;
+            }
+        }
+
+        /* Bloqueo de scroll cuando el menú está abierto */
+        body.menu-open {
+            overflow: hidden !important;
+            touch-action: none;
+            /* Prevenir bounce en iOS */
+            position: fixed;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Asegurar que el contenido principal tenga z-index bajo */
+        header:not(#navbar),
+        main,
+        footer {
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Focus visible para accesibilidad */
+        #mobile-menu:focus {
+            outline: none;
+        }
+
+        #mobile-menu button:focus-visible {
+            outline: 2px solid #f97316; /* orange-500 */
+            outline-offset: 2px;
+        }
+
+        /* Animación suave para el botón hamburguesa */
+        #mobile-menu-btn {
+            position: relative;
+            z-index: 10000; /* Siempre visible */
+        }
+
+        #mobile-menu-btn i {
+            transition: transform 0.3s ease;
+        }
+
+        body.menu-open #mobile-menu-btn i.fa-bars {
+            transform: rotate(90deg);
         }
     </style>
 </head>
@@ -899,28 +1060,286 @@ function updateNavbar() {
 // Scroll to section
 function scrollToSection(id) {
     const element = document.getElementById(id);
-    if (element) {
-        element.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        // Close mobile menu if open
-        const mobileMenu = document.getElementById('mobile-menu');
-        mobileMenu.classList.remove('open');
-        document.getElementById('mobile-menu-btn').innerHTML = '<i class="fas fa-bars text-2xl"></i>';
+    if (!element) return;
+
+    // Cerrar menú móvil PRIMERO (para liberar position: fixed del body)
+    const mobileMenu = document.getElementById('mobile-menu');
+    const menuBtn    = document.getElementById('mobile-menu-btn');
+    const backdrop   = document.querySelector('.menu-backdrop');
+
+    // Quitar clases/estilos globales
+    if (mobileMenu) mobileMenu.classList.remove('open');
+    document.body.classList.remove('menu-open');
+    document.body.style.top = ''; // liberar el scroll fijado
+    if (backdrop) backdrop.classList.remove('is-active');
+
+    // Accesibilidad + icono
+    if (menuBtn) {
+        menuBtn.setAttribute('aria-expanded', 'false');
+        menuBtn.setAttribute('aria-label', 'Abrir menú');
+        menuBtn.innerHTML = '<i class="fas fa-bars text-2xl"></i>';
     }
+
+    // Hacer scroll DESPUÉS de liberar el body (con pequeño delay para que el DOM se actualice)
+    setTimeout(() => {
+        element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 100);
 }
 
-// Mobile menu toggle
-document.getElementById('mobile-menu-btn').addEventListener('click', function() {
-    const mobileMenu = document.getElementById('mobile-menu');
-    const isOpen = mobileMenu.classList.contains('open');
+/* ========================================
+   OFF-CANVAS MOBILE MENU FIX - JavaScript
+   ======================================== */
 
-    if (isOpen) {
-        mobileMenu.classList.remove('open');
-        this.innerHTML = '<i class="fas fa-bars text-2xl"></i>';
-    } else {
-        mobileMenu.classList.add('open');
-        this.innerHTML = '<i class="fas fa-times text-2xl"></i>';
+(() => {
+    'use strict';
+
+    // Elementos del DOM
+    const menuBtn = document.getElementById('mobile-menu-btn');
+    const mobileMenu = document.getElementById('mobile-menu');
+    let backdrop = document.querySelector('.menu-backdrop');
+
+    // Almacenar la posición de scroll para restaurarla después
+    let scrollPosition = 0;
+
+    // Crear backdrop si no existe
+    if (!backdrop) {
+        backdrop = document.createElement('div');
+        backdrop.className = 'menu-backdrop';
+        backdrop.setAttribute('aria-hidden', 'true');
+        // Insertar como PRIMER hijo del body para que esté detrás de todo
+        document.body.insertBefore(backdrop, document.body.firstChild);
     }
-});
+
+    // Lista de elementos focuseables dentro del menú
+    let focusableElements = [];
+    let firstFocusable = null;
+    let lastFocusable = null;
+
+    /**
+     * Actualizar elementos focuseables
+     */
+    function updateFocusableElements() {
+        if (!mobileMenu) return;
+
+        focusableElements = Array.from(
+            mobileMenu.querySelectorAll(
+                'button:not([disabled]), a[href]:not([disabled]), [tabindex]:not([tabindex="-1"])'
+            )
+        );
+
+        firstFocusable = focusableElements[0];
+        lastFocusable = focusableElements[focusableElements.length - 1];
+    }
+
+    /**
+     * Abrir menú
+     */
+    function openMenu() {
+        if (!mobileMenu) return;
+
+        // Guardar posición de scroll actual
+        scrollPosition = window.pageYOffset || document.documentElement.scrollTop;
+
+        // Aplicar clases
+        mobileMenu.classList.add('open');
+        backdrop.classList.add('is-active');
+        document.body.classList.add('menu-open');
+
+        // Aplicar posición fija con offset para evitar salto
+        document.body.style.top = `-${scrollPosition}px`;
+
+        // Accesibilidad
+        if (menuBtn) {
+            menuBtn.setAttribute('aria-expanded', 'true');
+            menuBtn.setAttribute('aria-label', 'Cerrar menú');
+        }
+
+        mobileMenu.setAttribute('aria-hidden', 'false');
+        mobileMenu.setAttribute('tabindex', '-1');
+
+        // Focus en el menú después de la transición
+        setTimeout(() => {
+            mobileMenu.focus();
+            updateFocusableElements();
+        }, 50);
+
+        // Actualizar ícono del botón
+        if (menuBtn) {
+            const icon = menuBtn.querySelector('i');
+            if (icon) {
+                icon.classList.remove('fa-bars');
+                icon.classList.add('fa-times');
+            }
+        }
+    }
+
+    /**
+     * Cerrar menú
+     */
+    function closeMenu() {
+        if (!mobileMenu) return;
+
+        // Remover clases
+        mobileMenu.classList.remove('open');
+        backdrop.classList.remove('is-active');
+        document.body.classList.remove('menu-open');
+
+        // Restaurar scroll
+        document.body.style.top = '';
+        window.scrollTo(0, scrollPosition);
+
+        // Accesibilidad
+        if (menuBtn) {
+            menuBtn.setAttribute('aria-expanded', 'false');
+            menuBtn.setAttribute('aria-label', 'Abrir menú');
+            menuBtn.focus(); // Devolver foco al botón
+        }
+
+        mobileMenu.setAttribute('aria-hidden', 'true');
+        mobileMenu.removeAttribute('tabindex');
+
+        // Actualizar ícono del botón
+        if (menuBtn) {
+            const icon = menuBtn.querySelector('i');
+            if (icon) {
+                icon.classList.remove('fa-times');
+                icon.classList.add('fa-bars');
+            }
+        }
+    }
+
+    /**
+     * Toggle del menú
+     */
+    function toggleMenu() {
+        if (!mobileMenu) return;
+
+        const isOpen = mobileMenu.classList.contains('open');
+
+        if (isOpen) {
+            closeMenu();
+        } else {
+            openMenu();
+        }
+    }
+
+    /**
+     * Trap de foco dentro del menú
+     */
+    function trapFocus(e) {
+        if (!mobileMenu || !mobileMenu.classList.contains('open')) return;
+
+        const isTabPressed = e.key === 'Tab';
+
+        if (!isTabPressed) return;
+
+        if (e.shiftKey) { // Shift + Tab
+            if (document.activeElement === firstFocusable) {
+                lastFocusable?.focus();
+                e.preventDefault();
+            }
+        } else { // Tab
+            if (document.activeElement === lastFocusable) {
+                firstFocusable?.focus();
+                e.preventDefault();
+            }
+        }
+    }
+
+    /**
+     * Cerrar con tecla Escape
+     */
+    function handleEscape(e) {
+        if (e.key === 'Escape' || e.key === 'Esc') {
+            if (mobileMenu && mobileMenu.classList.contains('open')) {
+                closeMenu();
+            }
+        }
+    }
+
+    /**
+     * Prevenir scroll en el backdrop
+     */
+    function preventScroll(e) {
+        if (mobileMenu && mobileMenu.classList.contains('open')) {
+            if (!mobileMenu.contains(e.target)) {
+                e.preventDefault();
+            }
+        }
+    }
+
+    // Event Listeners
+    if (menuBtn) {
+        menuBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            toggleMenu();
+        });
+
+        // Inicializar atributos ARIA
+        menuBtn.setAttribute('aria-expanded', 'false');
+        menuBtn.setAttribute('aria-controls', 'mobile-menu');
+        menuBtn.setAttribute('aria-label', 'Abrir menú');
+    }
+
+    if (backdrop) {
+        backdrop.addEventListener('click', closeMenu);
+    }
+
+    // Cerrar menú al hacer clic en un enlace interno
+    if (mobileMenu) {
+        mobileMenu.setAttribute('aria-hidden', 'true');
+        mobileMenu.setAttribute('role', 'dialog');
+        mobileMenu.setAttribute('aria-label', 'Menú de navegación principal');
+
+        mobileMenu.addEventListener('click', (e) => {
+            const target = e.target;
+            // Si se hace clic en un botón de navegación, cerrar el menú
+            if (target.matches('button[onclick*="scrollToSection"]')) {
+                // Dar tiempo a que la función scrollToSection se ejecute
+                setTimeout(closeMenu, 100);
+            }
+        });
+    }
+
+    // Keyboard events
+    document.addEventListener('keydown', handleEscape);
+    document.addEventListener('keydown', trapFocus);
+
+    // Prevenir scroll del body en mobile cuando el menú está abierto
+    document.addEventListener('touchmove', preventScroll, { passive: false });
+
+    // Cerrar menú si se cambia a desktop
+    let wasDesktop = window.innerWidth >= 1024;
+
+    window.addEventListener('resize', () => {
+        const isDesktop = window.innerWidth >= 1024;
+
+        if (isDesktop && !wasDesktop) {
+            // Cambiamos a desktop, cerrar menú si está abierto
+            if (mobileMenu && mobileMenu.classList.contains('open')) {
+                closeMenu();
+            }
+        }
+
+        wasDesktop = isDesktop;
+    });
+
+    // Cleanup: remover el toggle original si existe
+    // (Este código elimina event listeners duplicados)
+    const oldScript = Array.from(document.querySelectorAll('script')).find(
+        script => script.textContent.includes('mobile-menu-btn') &&
+                  script.textContent.includes('addEventListener')
+    );
+
+    if (oldScript && window.menuToggleAttached) {
+        // Ya existe el listener, no agregamos duplicado
+        console.warn('Mobile menu listener ya existe - evitando duplicado');
+    } else {
+        window.menuToggleAttached = true;
+    }
+
+})();
 
 // Scroll to top button
 const scrollTopBtn = document.getElementById('scroll-top-btn');
