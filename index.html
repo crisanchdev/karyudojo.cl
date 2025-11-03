@@ -1,13 +1,937 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Landing Page UX/UI Redesign</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
+<!DOCTYPE html>
+<html lang="es-CL">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Karyū Dōjō - Bujinkan Budō Taijutsu Concepción</title>
+    <meta name="description" content="Entrena cuerpo, mente y espíritu en Karyū Dōjō. Bujinkan Budō Taijutsu en Concepción, Chile.">
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes slideInFromTop {
+            from { transform: translateY(-100%); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .animate-fade-in {
+            animation: fadeIn 1s ease-out;
+        }
+
+        .animate-slide-in {
+            animation: slideInFromTop 0.3s ease-out;
+        }
+
+        /* Smooth scroll */
+        html {
+            scroll-behavior: smooth;
+        }
+
+        /* Mobile menu transition */
+        .mobile-menu {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+        }
+
+        .mobile-menu.open {
+            max-height: 500px;
+        }
+
+        /* Lightbox */
+        .lightbox {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 9999;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .lightbox.active {
+            display: flex;
+        }
+    </style>
+</head>
+<body class="bg-white">
+
+<!-- Progress Bar -->
+<div id="progress-bar" class="fixed top-0 left-0 w-full h-1 bg-gray-200 z-50">
+    <div id="progress-bar-fill" class="h-full bg-gradient-to-r from-green-700 via-orange-500 to-green-700 transition-all duration-150" style="width: 0%"></div>
+</div>
+
+<!-- Navbar -->
+<nav id="navbar" class="fixed top-0 w-full z-50 transition-all duration-300 bg-white/98 py-4">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between items-center">
+            <!-- Logo -->
+            <button onclick="scrollToSection('inicio')" class="flex items-center gap-3 group">
+                <span class="text-4xl font-bold bg-gradient-to-r from-green-700 to-orange-500 bg-clip-text text-transparent">火龍</span>
+                <div class="flex flex-col">
+                    <span class="text-xl font-bold text-gray-900 tracking-wide group-hover:text-green-700 transition-colors">KARYŪ DŌJŌ</span>
+                    <span class="text-xs text-gray-500 tracking-widest">BUJINKAN</span>
+                </div>
+            </button>
+
+            <!-- Desktop Menu -->
+            <div class="hidden lg:flex items-center gap-1 bg-gray-50/50 rounded-full px-2 py-2">
+                <button onclick="scrollToSection('inicio')" class="nav-link px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 text-gray-700 hover:bg-white hover:text-orange-500">Inicio</button>
+                <button onclick="scrollToSection('sobre')" class="nav-link px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 text-gray-700 hover:bg-white hover:text-orange-500">Sobre</button>
+                <button onclick="scrollToSection('aprender')" class="nav-link px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 text-gray-700 hover:bg-white hover:text-orange-500">Aprender</button>
+                <button onclick="scrollToSection('filosofia')" class="nav-link px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 text-gray-700 hover:bg-white hover:text-orange-500">Filosofía</button>
+                <button onclick="scrollToSection('maestro')" class="nav-link px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 text-gray-700 hover:bg-white hover:text-orange-500">Maestro</button>
+                <button onclick="scrollToSection('horarios')" class="nav-link px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 text-gray-700 hover:bg-white hover:text-orange-500">Horarios</button>
+                <button onclick="scrollToSection('galeria')" class="nav-link px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 text-gray-700 hover:bg-white hover:text-orange-500">Galería</button>
+                <button onclick="scrollToSection('ubicacion')" class="nav-link px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 text-gray-700 hover:bg-white hover:text-orange-500">Ubicación</button>
+            </div>
+
+            <!-- Desktop Social & CTA -->
+            <div class="hidden lg:flex items-center gap-4">
+                <a href="https://instagram.com/bjk_conce" target="_blank" rel="noopener noreferrer" class="w-10 h-10 rounded-full bg-white shadow-md flex items-center justify-center text-gray-700 hover:bg-gradient-to-br hover:from-orange-500 hover:to-green-700 hover:text-white transition-all duration-300 hover:scale-110">
+                    <i class="fab fa-instagram"></i>
+                </a>
+                <a href="https://facebook.com/karyudojo" target="_blank" rel="noopener noreferrer" class="w-10 h-10 rounded-full bg-white shadow-md flex items-center justify-center text-gray-700 hover:bg-gradient-to-br hover:from-orange-500 hover:to-green-700 hover:text-white transition-all duration-300 hover:scale-110">
+                    <i class="fab fa-facebook-f"></i>
+                </a>
+                <button onclick="scrollToSection('contacto')" class="px-6 py-2.5 bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-full font-semibold shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300">
+                    Clase Gratis
+                </button>
+            </div>
+
+            <!-- Mobile Menu Button -->
+            <button id="mobile-menu-btn" class="lg:hidden p-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors">
+                <i class="fas fa-bars text-2xl"></i>
+            </button>
+        </div>
+
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="mobile-menu lg:hidden mt-2 py-4 px-4 space-y-2">
+            <button onclick="scrollToSection('inicio')" class="mobile-nav-link w-full text-left px-4 py-3 rounded-lg text-base font-medium transition-colors text-gray-700 hover:bg-gray-100">Inicio</button>
+            <button onclick="scrollToSection('sobre')" class="mobile-nav-link w-full text-left px-4 py-3 rounded-lg text-base font-medium transition-colors text-gray-700 hover:bg-gray-100">Sobre</button>
+            <button onclick="scrollToSection('aprender')" class="mobile-nav-link w-full text-left px-4 py-3 rounded-lg text-base font-medium transition-colors text-gray-700 hover:bg-gray-100">Aprender</button>
+            <button onclick="scrollToSection('filosofia')" class="mobile-nav-link w-full text-left px-4 py-3 rounded-lg text-base font-medium transition-colors text-gray-700 hover:bg-gray-100">Filosofía</button>
+            <button onclick="scrollToSection('maestro')" class="mobile-nav-link w-full text-left px-4 py-3 rounded-lg text-base font-medium transition-colors text-gray-700 hover:bg-gray-100">Maestro</button>
+            <button onclick="scrollToSection('horarios')" class="mobile-nav-link w-full text-left px-4 py-3 rounded-lg text-base font-medium transition-colors text-gray-700 hover:bg-gray-100">Horarios</button>
+            <button onclick="scrollToSection('galeria')" class="mobile-nav-link w-full text-left px-4 py-3 rounded-lg text-base font-medium transition-colors text-gray-700 hover:bg-gray-100">Galería</button>
+            <button onclick="scrollToSection('ubicacion')" class="mobile-nav-link w-full text-left px-4 py-3 rounded-lg text-base font-medium transition-colors text-gray-700 hover:bg-gray-100">Ubicación</button>
+            <button onclick="scrollToSection('contacto')" class="w-full px-4 py-3 bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-lg font-semibold mt-4">
+                Clase Gratis
+            </button>
+        </div>
+    </div>
+</nav>
+
+<!-- Hero Section -->
+<section id="inicio" class="min-h-screen flex items-center justify-center relative overflow-hidden bg-gradient-to-br from-green-50 via-white to-orange-50 pt-20">
+    <div class="absolute inset-0 opacity-5">
+        <div class="absolute right-0 top-1/2 -translate-y-1/2 text-[20rem] font-bold text-green-700">龍</div>
+    </div>
+
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-20 relative z-10">
+        <div class="max-w-4xl mx-auto text-center space-y-8 animate-fade-in">
+            <h1 class="text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 leading-tight">
+                <span class="bg-gradient-to-r from-green-700 to-green-600 bg-clip-text text-transparent">Karyū Dōjō</span>
+                <br>
+                <span class="text-3xl sm:text-4xl lg:text-5xl text-gray-700 font-normal mt-2 block">Bujinkan Budō Taijutsu Concepción</span>
+            </h1>
+
+            <p class="text-xl sm:text-2xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
+                Entrena cuerpo, mente y espíritu en un entorno de respeto, calma y desarrollo personal.
+            </p>
+
+            <div class="flex flex-col sm:flex-row gap-4 justify-center items-center pt-6">
+                <button onclick="scrollToSection('contacto')" class="px-8 py-4 bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-full font-semibold text-lg shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300 w-full sm:w-auto">
+                    Probar clase de introducción
+                </button>
+                <button onclick="scrollToSection('horarios')" class="px-8 py-4 bg-white text-green-700 border-2 border-green-700 rounded-full font-semibold text-lg hover:bg-green-700 hover:text-white transition-all duration-300 w-full sm:w-auto">
+                    Ver horario
+                </button>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 pt-12 max-w-3xl mx-auto">
+                <div class="p-6 bg-white rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300">
+                    <div class="text-4xl font-bold bg-gradient-to-r from-orange-500 to-green-700 bg-clip-text text-transparent">25+</div>
+                    <div class="text-gray-600 mt-2">Años de experiencia</div>
+                </div>
+                <div class="p-6 bg-white rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300">
+                    <div class="text-4xl font-bold bg-gradient-to-r from-orange-500 to-green-700 bg-clip-text text-transparent">100+</div>
+                    <div class="text-gray-600 mt-2">Estudiantes formados</div>
+                </div>
+                <div class="p-6 bg-white rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300">
+                    <div class="text-4xl font-bold bg-gradient-to-r from-orange-500 to-green-700 bg-clip-text text-transparent">1</div>
+                    <div class="text-gray-600 mt-2">Comunidad unida</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce">
+        <div class="w-6 h-10 border-2 border-gray-400 rounded-full p-1">
+            <div class="w-1.5 h-3 bg-gray-400 rounded-full mx-auto animate-pulse"></div>
+        </div>
+    </div>
+</section>
+
+<!-- About Section -->
+<section id="sobre" class="py-20 bg-gray-50">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="max-w-6xl mx-auto">
+            <h2 class="text-4xl sm:text-5xl font-bold text-center text-green-700 mb-4">Sobre el Dōjō</h2>
+            <p class="text-center text-gray-600 text-lg mb-16 max-w-3xl mx-auto">Un espacio de crecimiento, tradición y respeto</p>
+
+            <div class="grid lg:grid-cols-2 gap-12 items-center">
+                <div class="space-y-6 text-lg text-gray-700 leading-relaxed">
+                    <p>Karyū Dōjō es un espacio dedicado al estudio del <strong class="text-green-700">Bujinkan Budō Taijutsu</strong>, bajo la guía del Shihan Cristián Sánchez.</p>
+                    <p>Nuestro propósito es preservar las enseñanzas del Budō japonés como una práctica viva: no para competir, sino para <strong class="text-orange-500">comprender y proteger</strong>.</p>
+                    <p>Aquí cada entrenamiento es una oportunidad para fortalecer el cuerpo, aclarar la mente y templar el espíritu, siguiendo el legado del Sōke Masaaki Hatsumi y Dai Shihan Christian Petroccello.</p>
+
+                    <div class="flex flex-wrap gap-4 pt-6">
+                        <span class="px-4 py-2 bg-white rounded-full text-green-700 font-semibold shadow-md">Tradición</span>
+                        <span class="px-4 py-2 bg-white rounded-full text-green-700 font-semibold shadow-md">Respeto</span>
+                        <span class="px-4 py-2 bg-white rounded-full text-green-700 font-semibold shadow-md">Disciplina</span>
+                        <span class="px-4 py-2 bg-white rounded-full text-green-700 font-semibold shadow-md">Crecimiento</span>
+                    </div>
+                </div>
+
+                <div class="relative group">
+                    <div class="aspect-[4/3] bg-gradient-to-br from-green-700 to-orange-500 rounded-2xl shadow-2xl overflow-hidden relative">
+                        <div class="absolute inset-0 flex items-center justify-center">
+                            <span class="text-9xl font-bold text-white/20 group-hover:scale-110 transition-transform duration-500">火龍</span>
+                        </div>
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
+                        <div class="absolute bottom-6 left-6 right-6 text-white">
+                            <h3 class="text-2xl font-bold mb-2">Karyū Dōjō</h3>
+                            <p class="text-white/90">Dōjō del Dragón de Fuego</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Learn Section -->
+<section id="aprender" class="py-20 bg-white">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="max-w-6xl mx-auto">
+            <h2 class="text-4xl sm:text-5xl font-bold text-center text-green-700 mb-4">Qué aprenderás</h2>
+            <p class="text-center text-gray-600 text-xl mb-16 italic max-w-3xl mx-auto">"El objetivo no es pelear mejor, sino vivir mejor."</p>
+
+            <div class="grid md:grid-cols-3 gap-8">
+                <!-- Movimiento natural -->
+                <div class="group bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden border border-gray-100 hover:border-transparent hover:-translate-y-2">
+                    <div class="h-2 bg-gradient-to-r from-green-700 to-green-600"></div>
+                    <div class="p-8">
+                        <div class="w-16 h-16 rounded-xl bg-gradient-to-br from-green-700 to-green-600 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+                            <i class="fas fa-bullseye text-white text-3xl"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold text-gray-900 mb-4">Movimiento natural</h3>
+                        <p class="text-gray-600 leading-relaxed">Aprenderás a moverte con equilibrio y eficacia, sin fuerza innecesaria. El cuerpo encuentra su camino natural cuando la mente está en calma.</p>
+                    </div>
+                </div>
+
+                <!-- Autocontrol -->
+                <div class="group bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden border border-gray-100 hover:border-transparent hover:-translate-y-2">
+                    <div class="h-2 bg-gradient-to-r from-orange-500 to-orange-600"></div>
+                    <div class="p-8">
+                        <div class="w-16 h-16 rounded-xl bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+                            <i class="fas fa-brain text-white text-3xl"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold text-gray-900 mb-4">Autocontrol y atención plena</h3>
+                        <p class="text-gray-600 leading-relaxed">Desarrollarás serenidad ante la tensión, respiración estable y mente clara. La verdadera fortaleza surge del equilibrio interior.</p>
+                    </div>
+                </div>
+
+                <!-- Protección -->
+                <div class="group bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden border border-gray-100 hover:border-transparent hover:-translate-y-2">
+                    <div class="h-2 bg-gradient-to-r from-blue-600 to-blue-700"></div>
+                    <div class="p-8">
+                        <div class="w-16 h-16 rounded-xl bg-gradient-to-br from-blue-600 to-blue-700 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+                            <i class="fas fa-shield-alt text-white text-3xl"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold text-gray-900 mb-4">Protección con propósito</h3>
+                        <p class="text-gray-600 leading-relaxed">Aprenderás a cuidar de ti y de quienes te rodean, sin violencia ni agresión. La protección verdadera nace de la comprensión.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Philosophy Section -->
+<section id="filosofia" class="py-20 bg-gray-50">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="max-w-6xl mx-auto">
+            <h2 class="text-4xl sm:text-5xl font-bold text-center text-green-700 mb-4">Filosofía Shin-Gi-Tai</h2>
+            <p class="text-center text-gray-600 text-lg mb-16 max-w-4xl mx-auto">
+                Cuando Shin, Gi y Tai se equilibran, el practicante alcanza una forma de presencia silenciosa: el Budō como estado interior.
+            </p>
+
+            <div class="grid md:grid-cols-3 gap-8">
+                <!-- Shin -->
+                <div class="group bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 p-8 text-center hover:-translate-y-2">
+                    <div class="mb-6 relative">
+                        <div class="text-8xl font-bold text-gray-100 group-hover:text-gray-200 transition-colors">心</div>
+                        <div class="absolute inset-0 flex items-center justify-center text-8xl font-bold bg-gradient-to-br from-green-700 to-green-600 bg-clip-text text-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500">心</div>
+                    </div>
+                    <h3 class="text-3xl font-bold mb-2 bg-gradient-to-r from-green-700 to-green-600 bg-clip-text text-transparent">Shin</h3>
+                    <p class="text-gray-500 font-semibold mb-4">Mente e Intención</p>
+                    <p class="text-gray-600 leading-relaxed">Cultivar calma, respeto y atención constante.</p>
+                </div>
+
+                <!-- Gi -->
+                <div class="group bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 p-8 text-center hover:-translate-y-2">
+                    <div class="mb-6 relative">
+                        <div class="text-8xl font-bold text-gray-100 group-hover:text-gray-200 transition-colors">技</div>
+                        <div class="absolute inset-0 flex items-center justify-center text-8xl font-bold bg-gradient-to-br from-orange-500 to-orange-600 bg-clip-text text-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500">技</div>
+                    </div>
+                    <h3 class="text-3xl font-bold mb-2 bg-gradient-to-r from-orange-500 to-orange-600 bg-clip-text text-transparent">Gi</h3>
+                    <p class="text-gray-500 font-semibold mb-4">Técnica</p>
+                    <p class="text-gray-600 leading-relaxed">Refinar el movimiento hasta volverlo natural y preciso.</p>
+                </div>
+
+                <!-- Tai -->
+                <div class="group bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 p-8 text-center hover:-translate-y-2">
+                    <div class="mb-6 relative">
+                        <div class="text-8xl font-bold text-gray-100 group-hover:text-gray-200 transition-colors">体</div>
+                        <div class="absolute inset-0 flex items-center justify-center text-8xl font-bold bg-gradient-to-br from-blue-600 to-blue-700 bg-clip-text text-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500">体</div>
+                    </div>
+                    <h3 class="text-3xl font-bold mb-2 bg-gradient-to-r from-blue-600 to-blue-700 bg-clip-text text-transparent">Tai</h3>
+                    <p class="text-gray-500 font-semibold mb-4">Cuerpo</p>
+                    <p class="text-gray-600 leading-relaxed">Desarrollar una estructura firme, flexible y consciente.</p>
+                </div>
+            </div>
+
+            <div class="mt-16 bg-gradient-to-r from-green-700 to-orange-500 rounded-2xl p-8 text-center text-white shadow-xl">
+                <p class="text-xl font-medium leading-relaxed">La armonía entre mente, técnica y cuerpo es el camino hacia la maestría interior</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Instructor Section -->
+<section id="maestro" class="py-20 bg-white">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="max-w-5xl mx-auto">
+            <h2 class="text-4xl sm:text-5xl font-bold text-center text-green-700 mb-4">El Maestro</h2>
+            <p class="text-center text-gray-600 text-lg mb-16">Guía y mentor en el camino del Budō</p>
+
+            <div class="grid lg:grid-cols-5 gap-12 items-center">
+                <div class="lg:col-span-2 flex justify-center">
+                    <div class="relative group">
+                        <div class="w-64 h-64 rounded-full bg-gradient-to-br from-orange-500 to-green-700 flex items-center justify-center shadow-2xl group-hover:scale-105 transition-transform duration-300">
+                            <span class="text-9xl font-bold text-white">師</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="lg:col-span-3 space-y-6">
+                    <div>
+                        <h3 class="text-3xl font-bold text-orange-500 mb-2">Shihan Cristián Sánchez</h3>
+                        <p class="text-green-700 font-semibold text-lg">Instructor certificado Bujinkan Budō Taijutsu</p>
+                    </div>
+
+                    <div class="space-y-4 text-gray-700 leading-relaxed text-lg">
+                        <p>Instructor certificado del Bujinkan Budō Taijutsu, con más de <strong>25 años de práctica</strong> en artes marciales japonesas.</p>
+                        <p>Su enseñanza combina la tradición del Budō con la realidad moderna, buscando equilibrio, respeto y crecimiento continuo.</p>
+                        <p>Dirige Karyū Dōjō en Concepción, colaborando con Shihan Wladimir Parra (Shintoku Dōjō) para fortalecer la comunidad marcial del sur de Chile.</p>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4 pt-6">
+                        <div class="bg-gray-50 rounded-xl p-4 text-center border border-gray-200">
+                            <div class="text-2xl font-bold text-orange-500">25+</div>
+                            <div class="text-sm text-gray-600 mt-1">Años de práctica</div>
+                        </div>
+                        <div class="bg-gray-50 rounded-xl p-4 text-center border border-gray-200">
+                            <div class="text-2xl font-bold text-orange-500">100+</div>
+                            <div class="text-sm text-gray-600 mt-1">Estudiantes</div>
+                        </div>
+                        <div class="bg-gray-50 rounded-xl p-4 text-center border border-gray-200">
+                            <div class="text-2xl font-bold text-orange-500">15+</div>
+                            <div class="text-sm text-gray-600 mt-1">Años enseñando</div>
+                        </div>
+                        <div class="bg-gray-50 rounded-xl p-4 text-center border border-gray-200">
+                            <div class="text-2xl font-bold text-orange-500">Shihan</div>
+                            <div class="text-sm text-gray-600 mt-1">Rango certificado</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Schedule Section -->
+<section id="horarios" class="py-20 bg-gray-50">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="max-w-4xl mx-auto">
+            <h2 class="text-4xl sm:text-5xl font-bold text-center text-green-700 mb-4">Horarios y Ubicación</h2>
+            <p class="text-center text-gray-600 text-lg mb-16">Únete a nuestras sesiones de entrenamiento</p>
+
+            <div class="bg-white rounded-3xl shadow-2xl p-10 text-center relative overflow-hidden">
+                <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-green-700 via-orange-500 to-green-700"></div>
+
+                <div class="space-y-8">
+                    <div class="flex items-center justify-center gap-4 text-2xl font-semibold text-gray-900">
+                        <i class="fas fa-clock text-orange-500"></i>
+                        <span>Viernes 19:00 – 21:00 hrs</span>
+                    </div>
+
+                    <div class="flex items-center justify-center gap-4 text-xl text-gray-700">
+                        <i class="fas fa-map-marker-alt text-green-700"></i>
+                        <span>Barros Arana 160, Concepción</span>
+                    </div>
+
+                    <div class="border-t border-gray-200 pt-8 space-y-4">
+                        <div class="flex items-center justify-center gap-3 text-lg text-green-700 font-semibold">
+                            <i class="fas fa-users"></i>
+                            <span>No se requiere experiencia previa</span>
+                        </div>
+                        <p class="text-gray-600 text-lg">
+                            Primera clase de introducción <strong class="text-orange-500">gratuita</strong> — reserva tu espacio
+                        </p>
+                    </div>
+
+                    <button onclick="scrollToSection('contacto')" class="mt-8 px-10 py-4 bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-full font-semibold text-lg shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300">
+                        Reservar clase gratuita
+                    </button>
+                </div>
+
+                <div class="absolute bottom-0 right-0 text-9xl font-bold text-gray-50 leading-none select-none pointer-events-none">道</div>
+            </div>
+
+            <div class="grid md:grid-cols-3 gap-6 mt-12">
+                <div class="bg-white rounded-xl p-6 shadow-lg hover:shadow-xl transition-shadow text-center">
+                    <h3 class="text-lg font-bold text-green-700 mb-2">Clases reducidas</h3>
+                    <p class="text-gray-600">Atención personalizada en cada sesión</p>
+                </div>
+                <div class="bg-white rounded-xl p-6 shadow-lg hover:shadow-xl transition-shadow text-center">
+                    <h3 class="text-lg font-bold text-green-700 mb-2">Ambiente respetuoso</h3>
+                    <p class="text-gray-600">Espacio seguro para aprender y crecer</p>
+                </div>
+                <div class="bg-white rounded-xl p-6 shadow-lg hover:shadow-xl transition-shadow text-center">
+                    <h3 class="text-lg font-bold text-green-700 mb-2">Progreso constante</h3>
+                    <p class="text-gray-600">Sistema de grados y evaluaciones</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Gallery Section -->
+<section id="galeria" class="py-20 bg-white">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="max-w-6xl mx-auto">
+            <h2 class="text-4xl sm:text-5xl font-bold text-center text-green-700 mb-4">Galería</h2>
+            <p class="text-center text-gray-600 text-lg mb-16">Momentos de práctica, seminarios y la esencia del Bujinkan en nuestro dōjō</p>
+
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div class="gallery-item group relative aspect-[4/3] rounded-2xl overflow-hidden cursor-pointer shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-2" data-index="0">
+                    <img src="https://images.pexels.com/photos/3856420/pexels-photo-3856420.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Práctica de Taijutsu" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                        <div class="absolute bottom-0 left-0 right-0 p-6 text-white transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
+                            <h3 class="text-xl font-bold mb-1">Práctica de Taijutsu</h3>
+                            <p class="text-white/90 text-sm">Entrenamiento regular - Técnicas de movimiento natural</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="gallery-item group relative aspect-[4/3] rounded-2xl overflow-hidden cursor-pointer shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-2" data-index="1">
+                    <img src="https://images.pexels.com/photos/7045409/pexels-photo-7045409.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Seminario Internacional" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                        <div class="absolute bottom-0 left-0 right-0 p-6 text-white transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
+                            <h3 class="text-xl font-bold mb-1">Seminario Internacional</h3>
+                            <p class="text-white/90 text-sm">Seminario con Shihan invitados</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="gallery-item group relative aspect-[4/3] rounded-2xl overflow-hidden cursor-pointer shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-2" data-index="2">
+                    <img src="https://images.pexels.com/photos/7045389/pexels-photo-7045389.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Entrenamiento con Armas" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                        <div class="absolute bottom-0 left-0 right-0 p-6 text-white transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
+                            <h3 class="text-xl font-bold mb-1">Entrenamiento con Armas</h3>
+                            <p class="text-white/90 text-sm">Práctica con Bokken y Hanbo</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="gallery-item group relative aspect-[4/3] rounded-2xl overflow-hidden cursor-pointer shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-2" data-index="3">
+                    <img src="https://images.pexels.com/photos/3764015/pexels-photo-3764015.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Práctica de Meditación" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                        <div class="absolute bottom-0 left-0 right-0 p-6 text-white transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
+                            <h3 class="text-xl font-bold mb-1">Práctica de Meditación</h3>
+                            <p class="text-white/90 text-sm">Desarrollo del Shin - Cultivo de la mente</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="gallery-item group relative aspect-[4/3] rounded-2xl overflow-hidden cursor-pointer shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-2" data-index="4">
+                    <img src="https://images.pexels.com/photos/7045410/pexels-photo-7045410.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Kata Tradicional" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                        <div class="absolute bottom-0 left-0 right-0 p-6 text-white transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
+                            <h3 class="text-xl font-bold mb-1">Kata Tradicional</h3>
+                            <p class="text-white/90 text-sm">Demostración de kata clásico</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="gallery-item group relative aspect-[4/3] rounded-2xl overflow-hidden cursor-pointer shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-2" data-index="5">
+                    <img src="https://images.pexels.com/photos/6253312/pexels-photo-6253312.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Nuestra Comunidad" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                        <div class="absolute bottom-0 left-0 right-0 p-6 text-white transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
+                            <h3 class="text-xl font-bold mb-1">Nuestra Comunidad</h3>
+                            <p class="text-white/90 text-sm">Estudiantes del dōjō</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Lightbox -->
+<div id="lightbox" class="lightbox">
+    <button id="lightbox-close" class="absolute top-4 right-4 w-12 h-12 flex items-center justify-center bg-white/10 hover:bg-white/20 rounded-full text-white transition-colors">
+        <i class="fas fa-times text-2xl"></i>
+    </button>
+
+    <button id="lightbox-prev" class="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 flex items-center justify-center bg-white/10 hover:bg-white/20 rounded-full text-white transition-colors">
+        <i class="fas fa-chevron-left text-2xl"></i>
+    </button>
+
+    <button id="lightbox-next" class="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 flex items-center justify-center bg-white/10 hover:bg-white/20 rounded-full text-white transition-colors">
+        <i class="fas fa-chevron-right text-2xl"></i>
+    </button>
+
+    <div class="max-w-5xl w-full px-4">
+        <img id="lightbox-img" src="" alt="" class="w-full h-auto max-h-[80vh] object-contain rounded-lg">
+        <div class="text-center mt-4 text-white">
+            <h3 id="lightbox-title" class="text-2xl font-bold mb-2"></h3>
+            <p id="lightbox-caption" class="text-white/80"></p>
+        </div>
+    </div>
+</div>
+
+<!-- Location Section -->
+<section id="ubicacion" class="py-20 bg-gray-50">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="max-w-6xl mx-auto">
+            <h2 class="text-4xl sm:text-5xl font-bold text-center text-green-700 mb-4">Encuéntranos</h2>
+            <p class="text-center text-gray-600 text-lg mb-16">Visita nuestro dōjō en el corazón de Concepción</p>
+
+            <div class="grid lg:grid-cols-5 gap-8">
+                <div class="lg:col-span-2 space-y-6">
+                    <h3 class="text-2xl font-bold text-green-700">Karyū Dōjō</h3>
+
+                    <div class="space-y-4">
+                        <div class="flex gap-4 p-6 bg-white rounded-xl shadow-md hover:shadow-lg transition-all duration-300 border-l-4 border-orange-500 hover:translate-x-1">
+                            <div class="flex-shrink-0">
+                                <div class="w-12 h-12 rounded-lg bg-green-100 flex items-center justify-center">
+                                    <i class="fas fa-map-marker-alt text-green-700 text-xl"></i>
+                                </div>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-green-700 mb-1">Dirección</h4>
+                                <p class="text-gray-600">Barros Arana 160<br>Concepción, Chile</p>
+                            </div>
+                        </div>
+
+                        <div class="flex gap-4 p-6 bg-white rounded-xl shadow-md hover:shadow-lg transition-all duration-300 border-l-4 border-orange-500 hover:translate-x-1">
+                            <div class="flex-shrink-0">
+                                <div class="w-12 h-12 rounded-lg bg-green-100 flex items-center justify-center">
+                                    <i class="fas fa-clock text-green-700 text-xl"></i>
+                                </div>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-green-700 mb-1">Horario de Práctica</h4>
+                                <p class="text-gray-600">Viernes 19:00 - 21:00 hrs</p>
+                            </div>
+                        </div>
+
+                        <div class="flex gap-4 p-6 bg-white rounded-xl shadow-md hover:shadow-lg transition-all duration-300 border-l-4 border-orange-500 hover:translate-x-1">
+                            <div class="flex-shrink-0">
+                                <div class="w-12 h-12 rounded-lg bg-green-100 flex items-center justify-center">
+                                    <i class="fas fa-bus text-green-700 text-xl"></i>
+                                </div>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-green-700 mb-1">Transporte Público</h4>
+                                <p class="text-gray-600">Metro: Estación Concepción<br>Micros: Líneas 1, 3, 5</p>
+                            </div>
+                        </div>
+
+                        <div class="flex gap-4 p-6 bg-white rounded-xl shadow-md hover:shadow-lg transition-all duration-300 border-l-4 border-orange-500 hover:translate-x-1">
+                            <div class="flex-shrink-0">
+                                <div class="w-12 h-12 rounded-lg bg-green-100 flex items-center justify-center">
+                                    <i class="fas fa-car text-green-700 text-xl"></i>
+                                </div>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-green-700 mb-1">Estacionamiento</h4>
+                                <p class="text-gray-600">Disponible en calles cercanas</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <a href="https://www.google.com/maps/dir/?api=1&destination=Barros+Arana+160+Concepción+Chile" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-3 px-6 py-4 bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-full font-semibold shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300">
+                        <i class="fas fa-external-link-alt"></i>
+                        <span>Obtener Direcciones</span>
+                    </a>
+                </div>
+
+                <div class="lg:col-span-3">
+                    <div class="relative h-[600px] rounded-2xl overflow-hidden shadow-2xl">
+                        <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3194.0420!2d-73.0518!3d-36.8178!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x9669b5a357000000%3A0x0!2sBarros%20Arana%20160%2C%20Concepci%C3%B3n%2C%20Chile!5e0!3m2!1ses!2scl" class="w-full h-full" style="border: 0;" allowfullscreen loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+                        <div class="absolute top-4 right-4 bg-white rounded-xl shadow-lg p-4 flex items-center gap-2">
+                            <i class="fas fa-map-marker-alt text-green-700"></i>
+                            <span class="font-bold text-green-700">Karyū Dōjō</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Contact Section -->
+<section id="contacto" class="py-20 bg-white">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="max-w-3xl mx-auto">
+            <h2 class="text-4xl sm:text-5xl font-bold text-center text-green-700 mb-4">Invitación a entrenar</h2>
+            <p class="text-center text-gray-600 text-lg mb-12 leading-relaxed">
+                Si deseas comenzar un camino de equilibrio y disciplina, estás invitado a una clase de introducción gratuita.
+                No buscamos fuerza ni destreza; solo disposición para aprender y compromiso con el respeto.
+            </p>
+
+            <div class="bg-gradient-to-br from-gray-50 to-white rounded-3xl shadow-2xl p-8 md:p-12 border border-gray-100">
+                <form id="contact-form" class="space-y-6">
+                    <div>
+                        <label for="nombre" class="block text-green-700 font-semibold mb-2">Nombre completo</label>
+                        <input type="text" id="nombre" name="nombre" required class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-orange-500 focus:outline-none transition-colors text-gray-900">
+                    </div>
+
+                    <div>
+                        <label for="email" class="block text-green-700 font-semibold mb-2">Correo electrónico</label>
+                        <input type="email" id="email" name="email" required class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-orange-500 focus:outline-none transition-colors text-gray-900">
+                    </div>
+
+                    <div>
+                        <label for="edad" class="block text-green-700 font-semibold mb-2">Edad</label>
+                        <input type="number" id="edad" name="edad" min="16" required class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-orange-500 focus:outline-none transition-colors text-gray-900">
+                    </div>
+
+                    <div>
+                        <label for="experiencia" class="block text-green-700 font-semibold mb-2">Experiencia previa en artes marciales</label>
+                        <select id="experiencia" name="experiencia" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-orange-500 focus:outline-none transition-colors text-gray-900 bg-white">
+                            <option value="no">No tengo experiencia</option>
+                            <option value="si">Sí, tengo experiencia</option>
+                        </select>
+                    </div>
+
+                    <button type="submit" id="submit-btn" class="w-full px-8 py-4 bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-full font-semibold text-lg shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300 flex items-center justify-center gap-3">
+                        <i class="fas fa-paper-plane"></i>
+                        <span>Reservar clase de introducción</span>
+                    </button>
+                </form>
+            </div>
+
+            <div class="mt-12 text-center space-y-4">
+                <p class="text-gray-600">También puedes contactarnos directamente:</p>
+                <div class="flex flex-wrap justify-center gap-6 text-lg">
+                    <a href="tel:+56961919888" class="text-orange-500 hover:text-orange-600 font-semibold">+56 9 6191 9888</a>
+                    <a href="mailto:contacto@karyudojo.cl" class="text-orange-500 hover:text-orange-600 font-semibold">contacto@karyudojo.cl</a>
+                    <a href="https://instagram.com/bjk_conce" target="_blank" rel="noopener noreferrer" class="text-orange-500 hover:text-orange-600 font-semibold">@bjk_conce</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Footer -->
+<footer class="bg-gradient-to-br from-green-800 to-green-900 text-white py-16">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="max-w-6xl mx-auto">
+            <div class="grid md:grid-cols-3 gap-12 mb-12">
+                <div>
+                    <div class="flex items-center gap-3 mb-4">
+                        <span class="text-5xl">火龍</span>
+                        <div>
+                            <h3 class="text-2xl font-bold">Karyū Dōjō</h3>
+                            <p class="text-green-200 text-sm">Bujinkan Budō Taijutsu</p>
+                        </div>
+                    </div>
+                    <p class="text-green-100 leading-relaxed">Dirigido por Shihan Cristián Sánchez. Preservando las enseñanzas del Budō japonés en Concepción, Chile.</p>
+                </div>
+
+                <div>
+                    <h4 class="text-xl font-bold mb-4">Contacto</h4>
+                    <div class="space-y-3">
+                        <a href="tel:+56961919888" class="flex items-center gap-3 text-green-100 hover:text-white transition-colors">
+                            <i class="fas fa-phone"></i>
+                            <span>+56 9 6191 9888</span>
+                        </a>
+                        <a href="mailto:contacto@karyudojo.cl" class="flex items-center gap-3 text-green-100 hover:text-white transition-colors">
+                            <i class="fas fa-envelope"></i>
+                            <span>contacto@karyudojo.cl</span>
+                        </a>
+                        <div class="flex items-start gap-3 text-green-100">
+                            <i class="fas fa-map-marker-alt mt-1"></i>
+                            <span>Barros Arana 160<br>Concepción, Chile</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <h4 class="text-xl font-bold mb-4">Síguenos</h4>
+                    <div class="flex gap-4">
+                        <a href="https://instagram.com/bjk_conce" target="_blank" rel="noopener noreferrer" class="w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-all duration-300 hover:scale-110">
+                            <i class="fab fa-instagram text-2xl"></i>
+                        </a>
+                        <a href="https://facebook.com/karyudojo" target="_blank" rel="noopener noreferrer" class="w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-all duration-300 hover:scale-110">
+                            <i class="fab fa-facebook-f text-2xl"></i>
+                        </a>
+                    </div>
+                    <p class="text-green-200 mt-4 text-sm">@bjk_conce</p>
+                </div>
+            </div>
+
+            <div class="border-t border-green-700/50 pt-8 text-center">
+                <p class="text-green-200">© <span id="current-year"></span> Karyū Dōjō — Todos los derechos reservados.</p>
+                <p class="text-green-300 mt-2 text-sm">心技体 • Shin-Gi-Tai • Mente-Técnica-Cuerpo</p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- Floating Elements -->
+<a href="https://wa.me/56961919888" target="_blank" rel="noopener noreferrer" class="fixed bottom-6 right-6 w-14 h-14 bg-gradient-to-br from-green-600 to-green-700 rounded-full shadow-2xl flex items-center justify-center text-white hover:scale-110 transition-all duration-300 z-40 group" aria-label="WhatsApp">
+    <i class="fab fa-whatsapp text-3xl"></i>
+    <span class="absolute -top-12 right-0 bg-gray-900 text-white text-sm px-3 py-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">¡Escríbenos!</span>
+</a>
+
+<button id="scroll-top-btn" class="fixed bottom-24 right-6 w-12 h-12 bg-white border-2 border-orange-500 rounded-full shadow-lg flex items-center justify-center text-orange-500 hover:bg-orange-500 hover:text-white transition-all duration-300 z-40 hover:scale-110 hidden" aria-label="Scroll to top">
+    <i class="fas fa-arrow-up text-xl"></i>
+</button>
+
+<!-- JavaScript -->
+<script>
+// Scroll progress bar
+function updateProgressBar() {
+    const winScroll = document.documentElement.scrollTop;
+    const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+    const scrolled = (winScroll / height) * 100;
+    document.getElementById('progress-bar-fill').style.width = scrolled + '%';
+}
+
+// Navbar scroll effect and scroll spy
+function updateNavbar() {
+    const navbar = document.getElementById('navbar');
+    const scrolled = window.scrollY > 50;
+
+    if (scrolled) {
+        navbar.classList.remove('py-4');
+        navbar.classList.add('py-3', 'bg-white/95', 'backdrop-blur-lg', 'shadow-lg');
+    } else {
+        navbar.classList.remove('py-3', 'bg-white/95', 'backdrop-blur-lg', 'shadow-lg');
+        navbar.classList.add('py-4');
+    }
+
+    // Scroll spy
+    const sections = ['inicio', 'sobre', 'aprender', 'filosofia', 'maestro', 'horarios', 'galeria', 'ubicacion'];
+    let currentSection = 'inicio';
+
+    sections.forEach(sectionId => {
+        const element = document.getElementById(sectionId);
+        if (element) {
+            const rect = element.getBoundingClientRect();
+            if (rect.top <= 200 && rect.bottom >= 200) {
+                currentSection = sectionId;
+            }
+        }
+    });
+
+    // Update active nav links
+    document.querySelectorAll('.nav-link, .mobile-nav-link').forEach(link => {
+        link.classList.remove('bg-orange-500', 'text-white', 'shadow-md');
+        link.classList.add('text-gray-700');
+    });
+
+    const activeLinks = document.querySelectorAll(`[onclick="scrollToSection('${currentSection}')"]`);
+    activeLinks.forEach(link => {
+        if (link.classList.contains('nav-link')) {
+            link.classList.add('bg-orange-500', 'text-white', 'shadow-md');
+            link.classList.remove('text-gray-700');
+        } else if (link.classList.contains('mobile-nav-link')) {
+            link.classList.add('bg-orange-500', 'text-white');
+            link.classList.remove('text-gray-700');
+        }
+    });
+}
+
+// Scroll to section
+function scrollToSection(id) {
+    const element = document.getElementById(id);
+    if (element) {
+        element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        // Close mobile menu if open
+        const mobileMenu = document.getElementById('mobile-menu');
+        mobileMenu.classList.remove('open');
+        document.getElementById('mobile-menu-btn').innerHTML = '<i class="fas fa-bars text-2xl"></i>';
+    }
+}
+
+// Mobile menu toggle
+document.getElementById('mobile-menu-btn').addEventListener('click', function() {
+    const mobileMenu = document.getElementById('mobile-menu');
+    const isOpen = mobileMenu.classList.contains('open');
+
+    if (isOpen) {
+        mobileMenu.classList.remove('open');
+        this.innerHTML = '<i class="fas fa-bars text-2xl"></i>';
+    } else {
+        mobileMenu.classList.add('open');
+        this.innerHTML = '<i class="fas fa-times text-2xl"></i>';
+    }
+});
+
+// Scroll to top button
+const scrollTopBtn = document.getElementById('scroll-top-btn');
+
+function updateScrollTopBtn() {
+    if (window.scrollY > 500) {
+        scrollTopBtn.classList.remove('hidden');
+    } else {
+        scrollTopBtn.classList.add('hidden');
+    }
+}
+
+scrollTopBtn.addEventListener('click', function() {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+});
+
+// Gallery lightbox
+const galleryItems = [
+    {
+        src: 'https://images.pexels.com/photos/3856420/pexels-photo-3856420.jpeg?auto=compress&cs=tinysrgb&w=800',
+        title: 'Práctica de Taijutsu',
+        caption: 'Entrenamiento regular - Técnicas de movimiento natural'
+    },
+    {
+        src: 'https://images.pexels.com/photos/7045409/pexels-photo-7045409.jpeg?auto=compress&cs=tinysrgb&w=800',
+        title: 'Seminario Internacional',
+        caption: 'Seminario con Shihan invitados'
+    },
+    {
+        src: 'https://images.pexels.com/photos/7045389/pexels-photo-7045389.jpeg?auto=compress&cs=tinysrgb&w=800',
+        title: 'Entrenamiento con Armas',
+        caption: 'Práctica con Bokken y Hanbo'
+    },
+    {
+        src: 'https://images.pexels.com/photos/3764015/pexels-photo-3764015.jpeg?auto=compress&cs=tinysrgb&w=800',
+        title: 'Práctica de Meditación',
+        caption: 'Desarrollo del Shin - Cultivo de la mente'
+    },
+    {
+        src: 'https://images.pexels.com/photos/7045410/pexels-photo-7045410.jpeg?auto=compress&cs=tinysrgb&w=800',
+        title: 'Kata Tradicional',
+        caption: 'Demostración de kata clásico'
+    },
+    {
+        src: 'https://images.pexels.com/photos/6253312/pexels-photo-6253312.jpeg?auto=compress&cs=tinysrgb&w=800',
+        title: 'Nuestra Comunidad',
+        caption: 'Estudiantes del dōjō'
+    }
+];
+
+let currentLightboxIndex = 0;
+
+function openLightbox(index) {
+    currentLightboxIndex = index;
+    updateLightbox();
+    document.getElementById('lightbox').classList.add('active');
+}
+
+function closeLightbox() {
+    document.getElementById('lightbox').classList.remove('active');
+}
+
+function navigateLightbox(direction) {
+    currentLightboxIndex = (currentLightboxIndex + direction + galleryItems.length) % galleryItems.length;
+    updateLightbox();
+}
+
+function updateLightbox() {
+    const item = galleryItems[currentLightboxIndex];
+    document.getElementById('lightbox-img').src = item.src;
+    document.getElementById('lightbox-img').alt = item.title;
+    document.getElementById('lightbox-title').textContent = item.title;
+    document.getElementById('lightbox-caption').textContent = item.caption;
+}
+
+// Gallery item click handlers
+document.querySelectorAll('.gallery-item').forEach(item => {
+    item.addEventListener('click', function() {
+        const index = parseInt(this.getAttribute('data-index'));
+        openLightbox(index);
+    });
+});
+
+document.getElementById('lightbox-close').addEventListener('click', closeLightbox);
+document.getElementById('lightbox-prev').addEventListener('click', () => navigateLightbox(-1));
+document.getElementById('lightbox-next').addEventListener('click', () => navigateLightbox(1));
+
+// Close lightbox on background click
+document.getElementById('lightbox').addEventListener('click', function(e) {
+    if (e.target === this) {
+        closeLightbox();
+    }
+});
+
+// Contact form
+document.getElementById('contact-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    const submitBtn = document.getElementById('submit-btn');
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<div class="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div><span>Enviando...</span>';
+
+    setTimeout(() => {
+        alert('¡Gracias por tu interés! Te contactaremos pronto para confirmar tu clase de introducción.');
+        this.reset();
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i><span>Reservar clase de introducción</span>';
+    }, 1500);
+});
+
+// Current year in footer
+document.getElementById('current-year').textContent = new Date().getFullYear();
+
+// Event listeners
+window.addEventListener('scroll', function() {
+    updateProgressBar();
+    updateNavbar();
+    updateScrollTopBtn();
+});
+
+// Initial calls
+updateProgressBar();
+updateNavbar();
+updateScrollTopBtn();
+</script>
+
+</body>
 </html>
